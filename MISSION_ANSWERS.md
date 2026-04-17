@@ -57,6 +57,26 @@ Trong khi đó, ENTRYPOINT là lệnh chính cố định, thường không bị
 - Production: 236 MB
 - Difference: ~86.12%
 
+* Stage 1 dùng để build và cài toàn bộ dependencies:
+  * Cài tool build (gcc, lib…)
+  * Chạy pip install
+  * Compile các thư viện cần build (numpy, psycopg2…)
+  * Tạo ra folder packages (/root/.local)
+=> Đây là stage chỉ để chuẩn bị môi trường, không dùng để chạy app.
+
+* Stage 2 là môi trường chạy production:
+  * Chỉ copy: source code, dependencies đã build từ Stage 1
+  * Không có compiler, gcc, build tools
+  * Chạy app bằng uvicorn
+  * Chạy dưới non-root user
+=> Đây là image cuối cùng dùng để deploy.
+
+* Lý do nhỏ hơn: Vì Stage 2: 
+  * Không có gcc, build tools, apt packages
+  * Không có Python dev dependencies
+  * Không có file tạm build
+  * Chỉ giữ runtime + dependencies đã build sẵn
+
 ### Exercise 2.4: Diagram
 ```
 Client
@@ -68,6 +88,11 @@ Agent (FastAPI, 8000)
 ├── Redis (6379)      [cache / session / rate limit]
 └── Qdrant (6333)    [vector DB / RAG]
 ```
+- Client: Người dùng gửi request lên hệ thống.
+- Nginx: Cổng vào, nhận request và chuyển tiếp vào backend.
+- Agent (FastAPI): Xử lý logic chính của ứng dụng.
+- Redis: Cache + lưu tạm + session + rate limit.
+- Qdrant: Vector DB, dùng để search semantic / RAG.
 
 ## Part 3: Cloud Deployment
 
