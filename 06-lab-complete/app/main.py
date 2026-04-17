@@ -22,12 +22,15 @@ import json
 from datetime import datetime, timezone
 from collections import defaultdict, deque
 from contextlib import asynccontextmanager
+import redis
 
 from fastapi import FastAPI, HTTPException, Security, Depends, Request, Response
 from fastapi.security.api_key import APIKeyHeader
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 import uvicorn
+from app.rate_limiter import check_rate_limit
+from app.cost_guard import check_budget, record_cost
 
 from app.config import settings
 
@@ -242,12 +245,19 @@ def health():
         "timestamp": datetime.now(timezone.utc).isoformat(),
     }
 
+r = redis.from_url(settings.redis_url)
 
 @app.get("/ready", tags=["Operations"])
 def ready():
     """Readiness probe. Load balancer stops routing here if not ready."""
     if not _is_ready:
         raise HTTPException(503, "Not ready")
+    
+    try:
+        r.ping()
+    except Exception:
+        raise HTTPException(503, "Redis not ready")
+
     return {"ready": True}
 
 
