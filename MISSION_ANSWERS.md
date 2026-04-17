@@ -73,13 +73,13 @@ Agent (FastAPI, 8000)
 
 ### Exercise 3.1: Railway deployment
 - URL: https://day12-production-9100.up.railway.app
-- Screenshot: 
+- Screenshot: ![alt text](asset/image.png)
 
 
 ## Part 4: API Security
 
 ### Exercise 4.1: Test results
-
+![alt text](asset/image-1.png)
 
 ### Exercise 4.2: Test results
 ```
@@ -230,5 +230,5 @@ mà sẽ:
   * Chờ request đang chạy xong
   * Đóng app sạch sẽ
   * Thoát process
-  
+
 ### Exercise 5.5: 
